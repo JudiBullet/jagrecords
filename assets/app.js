@@ -226,18 +226,18 @@ function albumBack(al){return `<div style="font-family:'Anton',sans-serif;font-s
 
 var SOON=String.fromCharCode(220)+'r'+String.fromCharCode(252)+'n detaylar'+String.fromCharCode(305)+' yak'+String.fromCharCode(305)+'nda eklenecek.';
 const merch=[
-{title:'JAG Tee '+DASH+' Classic',sub:'Unisex '+MID+' S-XXL',price:TL+' TBA'},
-{title:'JAG Hoodie '+DASH+' Heavyweight',sub:'Unisex '+MID+' S-XXL',price:TL+' TBA'},
-{title:'Tote Bag',sub:'Canvas '+MID+' Natural',price:TL+' TBA'},
-{title:'Vinyl Coaster',sub:'4 Adet Set',price:TL+' TBA'},
-{title:'Enamel Pin',sub:'Metal '+MID+' 32mm',price:TL+' TBA'},
-{title:'Snapback Cap',sub:'One Size',price:TL+' TBA'},
-{title:'Sticker Pack',sub:'10 Adet',price:TL+' TBA'},
-{title:'All Access Pass',sub:'Lanyard',price:TL+' TBA'},
-{title:'Beanie',sub:'One Size',price:TL+' TBA'},
-{title:'Vinyl LP '+DASH+' Transmission',sub:'180g '+MID+' Black',price:TL+' TBA'}
+{title:'JAG Tee '+DASH+' Classic',sub:'Unisex '+MID+' S-XXL',price:TL+' TBA',img:'assets/merch/tee.png'},
+{title:'JAG Hoodie '+DASH+' Heavyweight',sub:'Unisex '+MID+' S-XXL',price:TL+' TBA',img:'assets/merch/hoodie.png'},
+{title:'Tote Bag',sub:'Canvas '+MID+' Natural',price:TL+' TBA',img:'assets/merch/tote.png'},
+{title:'Vinyl Coaster',sub:'4 Adet Set',price:TL+' TBA',img:'assets/merch/coaster.png'},
+{title:'Enamel Pin',sub:'Metal '+MID+' 32mm',price:TL+' TBA',img:'assets/merch/pin.png'},
+{title:'Snapback Cap',sub:'One Size',price:TL+' TBA',img:'assets/merch/cap.png'},
+{title:'Sticker Pack',sub:'10 Adet',price:TL+' TBA',img:'assets/merch/sticker.png'},
+{title:'All Access Pass',sub:'Lanyard',price:TL+' TBA',img:'assets/merch/pass.png'},
+{title:'Beanie',sub:'One Size',price:TL+' TBA',img:'assets/merch/beanie.png'},
+{title:'Vinyl LP '+DASH+' Transmission',sub:'180g '+MID+' Black',price:TL+' TBA',img:'assets/merch/vinyl.png'}
 ];
-function merchFront(m){return `<div style="background:linear-gradient(135deg,rgba(var(--card-tint),.14),var(--surface));width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center"><div style="font-family:'Anton',sans-serif;font-size:19px;letter-spacing:.02em;color:var(--purple2);text-transform:uppercase;line-height:1.1">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${m.sub}</div><div style="font-family:'Anton',sans-serif;font-size:16px;color:var(--purple);margin-top:6px">${m.price}</div><div style="font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:.08em">CLICK TO OPEN</div></div>`;}
+function merchFront(m){return `<div style="background:linear-gradient(135deg,rgba(var(--card-tint),.14),var(--surface));width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center"><img src="${m.img}" alt="${m.title}" loading="lazy" onerror="this.style.display='none'" style="width:74%;height:104px;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))"><div style="font-family:'Anton',sans-serif;font-size:17px;letter-spacing:.02em;color:var(--purple2);text-transform:uppercase;line-height:1.1">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${m.sub}</div><div style="font-family:'Anton',sans-serif;font-size:15px;color:var(--purple)">${m.price}</div><div style="font-family:'Inter',sans-serif;font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em">CLICK TO OPEN</div></div>`;}
 function merchBack(m){return `<div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--purple2);text-transform:uppercase;margin-bottom:6px">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:12px">${m.sub}</div><div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--off);line-height:1.7">${SOON}</div><div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--purple);margin-top:12px">${m.price}</div><button class="btn-o pulse-btn" data-close style="font-size:8px;padding:7px 16px;margin-top:12px;cursor:none">Close</button>`;}
 
 if(document.getElementById('albumStage'))createCarousel({stage:document.getElementById('albumStage'),track:document.getElementById('albumTrack'),nav:document.getElementById('albumNav'),items:albums,start:9,front:albumFront,back:albumBack});
