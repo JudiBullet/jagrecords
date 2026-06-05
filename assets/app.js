@@ -184,19 +184,17 @@ function createCarousel(o){
       if(cb)cb.addEventListener('click',function(e){e.stopPropagation();flipped=-1;position();});
       var dot=document.createElement('button');dot.title=it.title;dot.setAttribute('aria-label',it.title);
       dot.classList.toggle('active-album',i===activeIdx);
-      dot.addEventListener('click',function(){activeIdx=i;flipped=-1;position();updateNav();});
+      dot.addEventListener('click',function(){activeIdx=i;flipped=-1;position();updateNav();if(o.onChange)o.onChange(items[activeIdx],activeIdx);});
       navEl.appendChild(dot);
     });
     position();measure();
   }
-  stage.addEventListener('mousemove',function(e){
-    measure();
-    var rel=(e.clientX-stageRect.left)/stageRect.width;
-    var clamped=Math.max(0,Math.min(items.length-1,Math.round(rel*(items.length-1))));
-    if(clamped!==activeIdx){activeIdx=clamped;flipped=-1;position();updateNav();}
-  });
+  function go(d){activeIdx=(activeIdx+d+items.length)%items.length;flipped=-1;position();updateNav();if(o.onChange)o.onChange(items[activeIdx],activeIdx);}
+  function mkArrow(dir){var b=document.createElement('button');b.type='button';b.className='car-arrow '+(dir<0?'car-prev':'car-next');b.setAttribute('aria-label',dir<0?'Onceki':'Sonraki');b.innerHTML=dir<0?'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>':'<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';b.addEventListener('click',function(e){e.stopPropagation();go(dir);});return b;}
   window.addEventListener('resize',measure);
   build();
+  stage.appendChild(mkArrow(-1));stage.appendChild(mkArrow(1));
+  if(o.onChange)o.onChange(items[activeIdx],activeIdx);
 }
 
 const albums=[
@@ -221,7 +219,8 @@ const albums=[
 {title:'Aftermath',year:'2026',sub:'EP',tracks:T(['Dust','Silence','Rebuild','Dawn'])},
 {title:'Anthology',year:'2026',sub:'Best Of',tracks:T(['Greatest I','Greatest II','Greatest III','Bonus'])}
 ];
-function albumFront(al,i){var a=(0.22-(i%5)*0.02).toFixed(2);return `<div style="background:linear-gradient(135deg,rgba(var(--card-tint),${a}),var(--surface));width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center"><div style="font-family:'Anton',sans-serif;font-size:20px;letter-spacing:.02em;color:var(--purple2);text-transform:uppercase;line-height:1.05">${al.title}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${al.sub}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px">${al.year}</div><div style="font-family:'Inter',sans-serif;font-size:10px;color:var(--muted);margin-top:12px;letter-spacing:.08em">CLICK TO OPEN</div></div>`;}
+function albCover(i){return 'assets/albums/'+(i<9?'0':'')+(i+1)+'.svg';}
+function albumFront(al,i){return `<img src="${albCover(i)}" alt="${al.title}" loading="lazy" onerror="this.style.opacity=0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:linear-gradient(to top,rgba(0,0,0,.8),rgba(0,0,0,.05) 55%)"><div style="font-family:'Anton',sans-serif;font-size:18px;color:#fff;text-transform:uppercase;line-height:1.05">${al.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,.72);margin-top:3px">${al.year} ${DASH} ${al.sub}</div></div>`;}
 function albumBack(al){return `<div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--purple2);text-transform:uppercase;margin-bottom:2px">${al.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:14px">${al.year} ${DASH} ${al.sub}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--off);line-height:2;white-space:pre-line;text-align:left">${al.tracks}</div><button class="btn-o pulse-btn" data-close style="font-size:8px;padding:7px 16px;margin-top:14px;cursor:none">Close</button>`;}
 
 var SOON=String.fromCharCode(220)+'r'+String.fromCharCode(252)+'n detaylar'+String.fromCharCode(305)+' yak'+String.fromCharCode(305)+'nda eklenecek.';
@@ -240,7 +239,7 @@ const merch=[
 function merchFront(m){return `<div style="background:linear-gradient(135deg,rgba(var(--card-tint),.14),var(--surface));width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center"><img src="${m.img}" alt="${m.title}" loading="lazy" onerror="this.style.display='none'" style="width:74%;height:104px;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))"><div style="font-family:'Anton',sans-serif;font-size:17px;letter-spacing:.02em;color:var(--purple2);text-transform:uppercase;line-height:1.1">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${m.sub}</div><div style="font-family:'Anton',sans-serif;font-size:15px;color:var(--purple)">${m.price}</div><div style="font-family:'Inter',sans-serif;font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em">CLICK TO OPEN</div></div>`;}
 function merchBack(m){return `<div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--purple2);text-transform:uppercase;margin-bottom:6px">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:12px">${m.sub}</div><div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--off);line-height:1.7">${SOON}</div><div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--purple);margin-top:12px">${m.price}</div><button class="btn-o pulse-btn" data-close style="font-size:8px;padding:7px 16px;margin-top:12px;cursor:none">Close</button>`;}
 
-if(document.getElementById('albumStage'))createCarousel({stage:document.getElementById('albumStage'),track:document.getElementById('albumTrack'),nav:document.getElementById('albumNav'),items:albums,start:9,front:albumFront,back:albumBack});
+if(document.getElementById('albumStage'))createCarousel({stage:document.getElementById('albumStage'),track:document.getElementById('albumTrack'),nav:document.getElementById('albumNav'),items:albums,start:9,front:albumFront,back:albumBack,onChange:function(it,i){var bg=document.getElementById('albumBg');if(bg){bg.style.backgroundImage='url('+albCover(i)+')';bg.classList.add('show');}}});
 if(document.getElementById('merchStage'))createCarousel({stage:document.getElementById('merchStage'),track:document.getElementById('merchTrack'),nav:document.getElementById('merchNav'),items:merch,start:5,front:merchFront,back:merchBack});
 
 /* ══════════════════════════════════════════════════════════════
