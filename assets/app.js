@@ -343,3 +343,4 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
 })();
 
 ;(function(){var c=document.getElementById('footerLogo');if(!c)return;var src=document.querySelector('.nav-logo .jag-logo-svg');if(src){var s=src.cloneNode(true);s.removeAttribute('width');s.removeAttribute('height');c.appendChild(s);}})();
+;(function(){var f=document.getElementById('contactForm');if(!f)return;f.addEventListener('submit',function(e){e.preventDefault();function v(id){var el=document.getElementById(id);return el?el.value.trim():'';}var n=v('cfName'),em=v('cfEmail'),s=v('cfSubject')||'Mesaj',m=v('cfMsg');var nl=String.fromCharCode(10);var body='Ad: '+n+nl+'E-posta: '+em+nl+nl+m;location.href='mailto:info@jagrecords.com?subject='+encodeURIComponent('[JAG] '+s)+'&body='+encodeURIComponent(body);});})();

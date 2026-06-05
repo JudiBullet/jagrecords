@@ -43,15 +43,15 @@
     <div class="reveal">
       <p class="s-label">İletişim</p>
       <h2 class="s-title" style="margin-bottom:40px">Seninle<br>Konuşalım.</h2>
-      <div class="c-form">
+      <form class="c-form" id="contactForm" novalidate>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Ad Soyad</label><input type="text" class="form-input" placeholder="Adın"></div>
-          <div class="form-group"><label class="form-label">E-posta</label><input type="email" class="form-input" placeholder="eposta@domain.com"></div>
+          <div class="form-group"><label class="form-label">Ad Soyad</label><input type="text" id="cfName" class="form-input" placeholder="Adın"></div>
+          <div class="form-group"><label class="form-label">E-posta</label><input type="email" id="cfEmail" class="form-input" placeholder="eposta@domain.com"></div>
         </div>
-        <div class="form-group"><label class="form-label">Konu</label><select class="form-input"><option value="">Seç...</option><option>Demo Gönderimi</option><option>Merch Siparişi</option><option>İş Birliği</option><option>Basın & Medya</option><option>Diğer</option></select></div>
-        <div class="form-group"><label class="form-label">Mesaj</label><textarea class="form-input" placeholder="Mesajınızı buraya yazın..."></textarea></div>
-        <button class="btn-p pulse-btn" style="align-self:flex-start;border:none;font-size:9px;padding:13px 38px;cursor:none">Gönder</button>
-      </div>
+        <div class="form-group"><label class="form-label">Konu</label><select id="cfSubject" class="form-input"><option value="">Seç...</option><option>Demo Gönderimi</option><option>Merch Siparişi</option><option>İş Birliği</option><option>Basın & Medya</option><option>Diğer</option></select></div>
+        <div class="form-group"><label class="form-label">Mesaj</label><textarea id="cfMsg" class="form-input" placeholder="Mesajınızı buraya yazın..."></textarea></div>
+        <button type="submit" class="btn-p pulse-btn" style="align-self:flex-start;border:none;font-size:9px;padding:13px 38px;cursor:none">Gönder</button>
+      </form>
     </div>
     <div class="c-info reveal">
       <p class="s-label">Bilgiler</p>
