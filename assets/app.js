@@ -63,7 +63,7 @@
   void main(){
     vec2 uv=(gl_FragCoord.xy*2.0-R.xy)/R.y;
     vec3 bgD=mix(vec3(0.039),vec3(0.022),clamp(length(uv)*0.5,0.0,1.0));
-    vec3 bg=mix(vec3(0.957),bgD,uDark);
+    vec3 bg=mix(vec3(0.902,0.941,0.039),bgD,uDark);
     vec2 mo=MO-0.5;
     vec3 ro=vec3(mo.x*0.35,-mo.y*0.22,4.3);
     vec3 rd=normalize(vec3(uv,-1.4));
