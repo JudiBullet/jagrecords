@@ -414,3 +414,13 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
   btn.addEventListener('click',openD); bd.addEventListener('click',closeD);
   [].slice.call(dr.querySelectorAll('a')).forEach(function(l){ l.addEventListener('click',closeD); });
 })();
+/* ===== MOBILE NAV DRAWER ===== */
+(function(){
+  var t=document.getElementById('navToggle'),m=document.getElementById('mobileNav'),b=document.getElementById('navBackdrop'); if(!t||!m) return;
+  function close(){m.classList.remove('open');if(b)b.classList.remove('open');}
+  function open(){m.classList.add('open');if(b)b.classList.add('open');}
+  t.addEventListener('click',function(e){ e.stopPropagation(); m.classList.contains('open')?close():open(); });
+  if(b)b.addEventListener('click',close);
+  var f=(location.pathname.split('/').pop()||'index.html').toLowerCase(); if(f===''||f==='last.html')f='index.html';
+  m.querySelectorAll('a').forEach(function(a){ if((a.getAttribute('href')||'').toLowerCase()===f) a.classList.add('active'); a.addEventListener('click',close); });
+})();
