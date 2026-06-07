@@ -359,7 +359,7 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
     var a=document.createElement('a');a.className='news-card'+(rich?' news-card-rich':'');a.href=n.link||'#';a.target='_blank';a.rel='noopener';
     var dt=n.date?new Date(n.date):null;var d=(dt&&!isNaN(dt.getTime()))?dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
     var html='';
-    if(rich&&n.image){ html+='<div class="news-thumb" style="background-image:url('+JSON.stringify(n.image)+')"></div>'; }
+    if(n.image){ html+='<div class="news-thumb" style="background-image:url('+JSON.stringify(n.image)+')"></div>'; }
     html+='<div class="news-body"><div class="news-src">'+esc(n.src)+(d?' &#183; '+d:'')+'</div><div class="news-title">'+esc(n.title)+'</div>';
     if(rich&&n.excerpt){ html+='<div class="news-excerpt">'+esc(n.excerpt)+'</div>'; }
     html+='</div>'; a.innerHTML=html; return a;
