@@ -165,7 +165,7 @@ function createCarousel(o){
     cards.forEach(function(card,i){
       var off=i-activeIdx,abs=Math.abs(off);
       var tx=off*200,tz=-abs*110,ry=-off*20,sc=1-abs*0.10,op=Math.max(0,1-abs*0.34),z=40-abs;
-      var isA=(i===activeIdx);
+      var isA=(i===activeIdx);if(flipped===i){tz=90;sc=sc*1.18;}
       card.style.transform='translateX('+tx+'px) translateZ('+tz+'px) rotateY('+(flipped===i?ry+180:ry)+'deg) scale('+sc+')';
       card.style.opacity=op;card.style.zIndex=z;
       card.style.filter=isA?'brightness(1.1) drop-shadow(0 0 24px rgba(var(--card-tint),.35))':'brightness(.55)';
@@ -190,7 +190,7 @@ function createCarousel(o){
     position();measure();
   }
   function go(d){activeIdx=(activeIdx+d+items.length)%items.length;flipped=-1;position();updateNav();if(o.onChange)o.onChange(items[activeIdx],activeIdx);}
-  function mkArrow(dir){var b=document.createElement('button');b.type='button';b.className='car-arrow '+(dir<0?'car-prev':'car-next');b.setAttribute('aria-label',dir<0?'Onceki':'Sonraki');b.innerHTML=dir<0?'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>':'<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';b.addEventListener('click',function(e){e.stopPropagation();go(dir);});return b;}
+  function mkArrow(dir){var b=document.createElement('button');b.type='button';b.className='car-arrow '+(dir<0?'car-prev':'car-next');b.setAttribute('aria-label',dir<0?'Previous':'Next');b.innerHTML=dir<0?'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>':'<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';b.addEventListener('click',function(e){e.stopPropagation();go(dir);});return b;}
   window.addEventListener('resize',measure);
   build();
   stage.appendChild(mkArrow(-1));stage.appendChild(mkArrow(1));
@@ -223,20 +223,20 @@ function albCover(i){return 'assets/albums/'+(i<9?'0':'')+(i+1)+'.svg';}
 function albumFront(al,i){return `<img src="${albCover(i)}" alt="${al.title}" loading="lazy" onerror="this.style.opacity=0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:linear-gradient(to top,rgba(0,0,0,.8),rgba(0,0,0,.05) 55%)"><div style="font-family:'Anton',sans-serif;font-size:18px;color:#fff;text-transform:uppercase;line-height:1.05" lang="en">${al.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,.72);margin-top:3px">${al.year} ${DASH} ${al.sub}</div></div>`;}
 function albumBack(al){return `<div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--white);text-transform:uppercase;margin-bottom:2px" lang="en">${al.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:14px">${al.year} ${DASH} ${al.sub}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--off);line-height:2;white-space:pre-line;text-align:left">${al.tracks}</div><button class="btn-o pulse-btn" data-close style="font-size:8px;padding:7px 16px;margin-top:14px;cursor:none">Close</button>`;}
 
-var SOON=String.fromCharCode(220)+'r'+String.fromCharCode(252)+'n detaylar'+String.fromCharCode(305)+' yak'+String.fromCharCode(305)+'nda eklenecek.';
+var SOON='Product details coming soon.';
 const merch=[
 {title:'JAG Tee '+DASH+' Classic',sub:'Unisex '+MID+' S-XXL',price:TL+' TBA',img:'assets/merch/tee.svg'},
 {title:'JAG Hoodie '+DASH+' Heavyweight',sub:'Unisex '+MID+' S-XXL',price:TL+' TBA',img:'assets/merch/hoodie.svg'},
 {title:'Tote Bag',sub:'Canvas '+MID+' Natural',price:TL+' TBA',img:'assets/merch/tote.svg'},
-{title:'Vinyl Coaster',sub:'4 Adet Set',price:TL+' TBA',img:'assets/merch/coaster.svg'},
+{title:'Vinyl Coaster',sub:'4-Piece Set',price:TL+' TBA',img:'assets/merch/coaster.svg'},
 {title:'Enamel Pin',sub:'Metal '+MID+' 32mm',price:TL+' TBA',img:'assets/merch/pin.svg'},
 {title:'Snapback Cap',sub:'One Size',price:TL+' TBA',img:'assets/merch/cap.svg'},
-{title:'Sticker Pack',sub:'10 Adet',price:TL+' TBA',img:'assets/merch/sticker.svg'},
+{title:'Sticker Pack',sub:'10 Pack',price:TL+' TBA',img:'assets/merch/sticker.svg'},
 {title:'All Access Pass',sub:'Lanyard',price:TL+' TBA',img:'assets/merch/pass.svg'},
 {title:'Beanie',sub:'One Size',price:TL+' TBA',img:'assets/merch/beanie.svg'},
 {title:'Vinyl LP '+DASH+' Transmission',sub:'180g '+MID+' Black',price:TL+' TBA',img:'assets/merch/vinyl.svg'}
 ];
-function merchFront(m){return `<div style="background:linear-gradient(135deg,rgba(var(--card-tint),.14),var(--surface));width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center"><img src="${m.img}" alt="${m.title}" loading="lazy" onerror="this.style.display='none'" style="width:74%;height:104px;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))"><div style="font-family:'Anton',sans-serif;font-size:17px;letter-spacing:.02em;color:var(--white);text-transform:uppercase;line-height:1.1" lang="en">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)">${m.sub}</div><div style="font-family:'Anton',sans-serif;font-size:15px;color:var(--purple)">${m.price}</div><div style="font-family:'Inter',sans-serif;font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em">CLICK TO OPEN</div></div>`;}
+function merchFront(m){return `<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(var(--card-tint),.16),var(--surface))"></div><img src="${m.img}" alt="${m.title}" loading="lazy" onerror="this.style.opacity=0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:28px 28px 80px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.4))"><div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;background:linear-gradient(to top,rgba(0,0,0,.82),rgba(0,0,0,.05) 52%)"><div style="font-family:'Anton',sans-serif;font-size:17px;color:#fff;text-transform:uppercase;line-height:1.05" lang="en">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,.72);margin-top:3px">${m.sub} - ${m.price}</div></div>`;}
 function merchBack(m){return `<div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--white);text-transform:uppercase;margin-bottom:6px" lang="en">${m.title}</div><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:12px">${m.sub}</div><div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--off);line-height:1.7">${SOON}</div><div style="font-family:'Anton',sans-serif;font-size:18px;color:var(--purple);margin-top:12px">${m.price}</div><button class="btn-o pulse-btn" data-close style="font-size:8px;padding:7px 16px;margin-top:12px;cursor:none">Close</button>`;}
 
 if(document.getElementById('albumStage'))createCarousel({stage:document.getElementById('albumStage'),track:document.getElementById('albumTrack'),nav:document.getElementById('albumNav'),items:albums,start:9,front:albumFront,back:albumBack,onChange:function(it,i){var bg=document.getElementById('albumBg');if(bg){bg.style.backgroundImage='url('+albCover(i)+')';bg.classList.add('show');}}});
@@ -272,7 +272,7 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
   var ICON_PLAY='M8 5v14l11-7z';
   var ICON_PAUSE='M6 5h4v14H6zM14 5h4v14h-4z';
   var EM=String.fromCharCode(8212), ELL=String.fromCharCode(8230), gG=String.fromCharCode(286), sS=String.fromCharCode(350);
-  var TXT_CONN=DOT+'BA'+gG+'LANIYOR'+ELL, TXT_FAIL=DOT+'ULA'+sS+'ILAMADI';
+  var TXT_CONN=DOT+'CONNECTING'+ELL, TXT_FAIL=DOT+'UNAVAILABLE';
   var stations=[
     {name:'Metal Detector',genre:'Hard Rock / Metal',url:'https://ice1.somafm.com/metal-128-mp3'},
     {name:'Radio Paradise '+EM+' Rock',genre:'Rock',url:'https://stream.radioparadise.com/rock-128'},
@@ -322,13 +322,13 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
   vol.addEventListener('input',function(){ audio.volume=vol.value/100; });
   audio.volume=vol.value/100;
   audio.addEventListener('playing',function(){
-    elStatus.textContent=DOT+'CANLI YAYIN';
+    elStatus.textContent=DOT+'LIVE';
     playIcon.setAttribute('d',ICON_PAUSE);
     R.classList.add('playing');
     clearPlaying(); if(stations[idx].el) stations[idx].el.classList.add('playing');
   });
   audio.addEventListener('pause',function(){
-    elStatus.textContent=DOT+'DURAKLATILDI';
+    elStatus.textContent=DOT+'PAUSED';
     playIcon.setAttribute('d',ICON_PLAY);
     R.classList.remove('playing'); clearPlaying();
   });
