@@ -396,3 +396,21 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
     });
   }).catch(function(){ el.innerHTML='<div class="news-loading">No upcoming events.</div>'; });
 })();
+/* ===== MOBILE NAV (hamburger -> left drawer) ===== */
+(function(){
+  var menu=document.getElementById('navMenu'); if(!menu||document.getElementById('navToggle')) return;
+  var btn=document.createElement('button'); btn.id='navToggle'; btn.className='nav-toggle'; btn.type='button'; btn.setAttribute('aria-label','Menu'); btn.innerHTML='<span></span>';
+  var bd=document.createElement('div'); bd.className='nav-backdrop';
+  var dr=document.createElement('nav'); dr.className='nav-drawer'; dr.setAttribute('aria-label','Mobile menu');
+  var cur=(location.pathname.split('/').pop()||'index.html').toLowerCase(); if(cur==='last.html')cur='index.html';
+  [].slice.call(menu.querySelectorAll('a')).forEach(function(a){
+    var l=document.createElement('a'); var href=a.getAttribute('href')||'#'; l.setAttribute('href',href); l.textContent=a.textContent;
+    if(href.toLowerCase()===cur) l.classList.add('active');
+    dr.appendChild(l);
+  });
+  document.body.appendChild(btn); document.body.appendChild(bd); document.body.appendChild(dr);
+  function openD(){ dr.classList.add('open'); bd.classList.add('open'); }
+  function closeD(){ dr.classList.remove('open'); bd.classList.remove('open'); }
+  btn.addEventListener('click',openD); bd.addEventListener('click',closeD);
+  [].slice.call(dr.querySelectorAll('a')).forEach(function(l){ l.addEventListener('click',closeD); });
+})();
