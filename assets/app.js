@@ -343,3 +343,44 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
 
 ;(function(){var c=document.getElementById('footerLogo');if(!c)return;var src=document.querySelector('.nav-logo .jag-logo-svg');if(src){var s=src.cloneNode(true);s.removeAttribute('width');s.removeAttribute('height');c.appendChild(s);}})();
 ;(function(){var f=document.getElementById('contactForm');if(!f)return;f.addEventListener('submit',function(e){e.preventDefault();function v(id){var el=document.getElementById(id);return el?el.value.trim():'';}var n=v('cfName'),em=v('cfEmail'),s=v('cfSubject')||'Mesaj',m=v('cfMsg');var nl=String.fromCharCode(10);var body='Ad: '+n+nl+'E-posta: '+em+nl+nl+m;location.href='mailto:info@jagrecords.com?subject='+encodeURIComponent('[JAG] '+s)+'&body='+encodeURIComponent(body);});})();
+/* ===== LIVE NEWS (RSS via CORS proxy) ===== */
+(function(){
+  var grid=document.getElementById('newsGrid'); if(!grid) return;
+  var feeds=[
+    {src:'Loudwire',url:'https://loudwire.com/feed/'},
+    {src:'NME',url:'https://www.nme.com/news/music/feed'},
+    {src:'Stereogum',url:'https://www.stereogum.com/feed/'},
+    {src:'Metal Injection',url:'https://metalinjection.net/feed/'},
+    {src:'Consequence',url:'https://consequence.net/feed/'},
+    {src:'Brooklyn Vegan',url:'https://www.brooklynvegan.com/feed/'}
+  ];
+  var prox='https://api.allorigins.win/raw?url=';
+  var items=[],done=0,shown=false;
+  function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+  function render(){
+    if(shown) return; shown=true;
+    items.sort(function(a,b){return b.date-a.date;});
+    if(!items.length){ grid.innerHTML='<div class="news-loading">Could not load news right now &#8212; please try again later.</div>'; return; }
+    grid.innerHTML='';
+    items.slice(0,9).forEach(function(n){
+      var a=document.createElement('a');a.className='news-card';a.href=n.link;a.target='_blank';a.rel='noopener';
+      var d=(n.date && !isNaN(n.date.getTime()))?n.date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
+      a.innerHTML='<div class="news-src">'+esc(n.src)+(d?' &#183; '+d:'')+'</div><div class="news-title">'+esc(n.title)+'</div>';
+      grid.appendChild(a);
+    });
+  }
+  feeds.forEach(function(f){
+    fetch(prox+encodeURIComponent(f.url)).then(function(r){return r.text();}).then(function(xml){
+      var doc=new DOMParser().parseFromString(xml,'text/xml');
+      var its=doc.querySelectorAll('item');
+      for(var i=0;i<its.length && i<4;i++){
+        var it=its[i];
+        var t=(it.querySelector('title')||{}).textContent||'';
+        var l=(it.querySelector('link')||{}).textContent||'#';
+        var p=(it.querySelector('pubDate')||{}).textContent||'';
+        if(t) items.push({title:t,link:l,date:new Date(p),src:f.src});
+      }
+    }).catch(function(){}).then(function(){ done++; if(done>=feeds.length) render(); });
+  });
+  setTimeout(render,9000);
+})();
