@@ -300,8 +300,8 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
     var base='https://de1.api.radio-browser.info/json/stations/bytagexact/';
     var acc=[],done=0;
     defs.forEach(function(g){
-      fetch(base+encodeURIComponent(g[1])+'?limit=4&order=clickcount&reverse=true&hidebroken=true').then(function(r){return r.json();}).then(function(arr){
-        (arr||[]).forEach(function(st){ if(st&&st.url_resolved){ acc.push({name:(st.name||'').replace(/\s+/g,' ').trim().slice(0,42),genre:g[0],url:st.url_resolved}); } });
+      fetch(base+encodeURIComponent(g[1])+'?limit=14&order=clickcount&reverse=true&hidebroken=true').then(function(r){return r.json();}).then(function(arr){
+        var k=0;(arr||[]).forEach(function(st){ var u=(st&&st.url_resolved)||''; if(k<4 && /^https:/i.test(u) && !/\.(m3u8|pls|m3u)(\?|$)/i.test(u)){ acc.push({name:(st.name||'').replace(/\s+/g,' ').trim().slice(0,42),genre:g[0],url:u}); k++; } });
       }).catch(function(){}).then(function(){ done++; if(done===defs.length && acc.length>=6){ stations=acc; idx=0; buildList(); select(0,false); } });
     });
   })();
