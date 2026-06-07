@@ -274,37 +274,36 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
   var EM=String.fromCharCode(8212), ELL=String.fromCharCode(8230), gG=String.fromCharCode(286), sS=String.fromCharCode(350);
   var TXT_CONN=DOT+'CONNECTING'+ELL, TXT_FAIL=DOT+'UNAVAILABLE';
   var stations=[
-    {name:'Metal Detector',genre:'Hard Rock / Metal',url:'https://ice1.somafm.com/metal-128-mp3'},
-    {name:'Radio Paradise '+EM+' Rock',genre:'Rock',url:'https://stream.radioparadise.com/rock-128'},
-    {name:'KEXP 90.3 Seattle',genre:'Indie',url:'https://kexp.streamguys1.com/kexp128.mp3'},
-    {name:'Indie Pop Rocks!',genre:'Indie Pop',url:'https://ice1.somafm.com/indiepop-128-mp3'},
-    {name:'Beat Blender',genre:'Techno / Deep House',url:'https://ice1.somafm.com/beatblender-128-mp3'},
-    {name:'DEF CON Radio',genre:'Techno / Electro',url:'https://ice1.somafm.com/defcon-128-mp3'},
-    {name:'Groove Salad',genre:'Trip-Hop / Downtempo',url:'https://ice1.somafm.com/groovesalad-128-mp3'},
-    {name:'Secret Agent',genre:'Trip-Hop / Lounge',url:'https://ice1.somafm.com/secretagent-128-mp3'},
-    {name:'FIP Jazz',genre:'Jazz',url:'https://icecast.radiofrance.fr/fipjazz-midfi.mp3'},
-    {name:'Sonic Universe',genre:'Jazz / Avant',url:'https://ice1.somafm.com/sonicuniverse-128-mp3'},
-    {name:'FIP Rock',genre:'Rock / Eclectic',url:'https://icecast.radiofrance.fr/fiprock-midfi.mp3'}
+    {name:'Metal Detector',genre:'Metal',id:'metal',url:'https://ice1.somafm.com/metal-128-mp3'},
+    {name:'DEF CON Radio',genre:'Techno / Electro',id:'defcon',url:'https://ice1.somafm.com/defcon-128-mp3'},
+    {name:'Beat Blender',genre:'Deep House / Techno',id:'beatblender',url:'https://ice1.somafm.com/beatblender-128-mp3'},
+    {name:'cliqhop idm',genre:'IDM / Electronic',id:'cliqhop',url:'https://ice1.somafm.com/cliqhop-128-mp3'},
+    {name:'Indie Pop Rocks!',genre:'Indie',id:'indiepop',url:'https://ice1.somafm.com/indiepop-128-mp3'},
+    {name:'PopTron',genre:'Indie / Electro Pop',id:'poptron',url:'https://ice1.somafm.com/poptron-128-mp3'},
+    {name:'Underground 80s',genre:'New Wave / Synth',id:'u80s',url:'https://ice1.somafm.com/u80s-128-mp3'},
+    {name:'Groove Salad',genre:'Downtempo / Trip-Hop',id:'groovesalad',url:'https://ice1.somafm.com/groovesalad-128-mp3'},
+    {name:'Secret Agent',genre:'Trip-Hop / Lounge',id:'secretagent',url:'https://ice1.somafm.com/secretagent-128-mp3'},
+    {name:'Sonic Universe',genre:'Jazz / Avant',id:'sonicuniverse',url:'https://ice1.somafm.com/sonicuniverse-128-mp3'}
   ];
   var idx=0;
+  function fmtNow(s){return (s||'').replace(/\s+/g,' ').trim();}
+  function esc2(x){var d=document.createElement('div');d.textContent=x||'';return d.innerHTML;}
   function buildList(){ listEl.innerHTML=''; stations.forEach(function(s,i){
     var item=document.createElement('div'); item.className='rp-station-item';
     var num=(i+1<10?'0':'')+(i+1);
-    item.innerHTML='<div class="rp-si-idx">'+num+'</div><div class="rp-si-body"><div class="rp-si-name">'+s.name+'</div><div class="rp-si-genre">'+s.genre+'</div></div><div class="rp-si-bars"><span></span><span></span><span></span></div>';
+    item.innerHTML='<div class="rp-si-idx">'+num+'</div><div class="rp-si-body"><div class="rp-si-name">'+s.name+'</div><div class="rp-si-genre">'+esc2(s.now||s.genre)+'</div></div><div class="rp-si-bars"><span></span><span></span><span></span></div>';
     item.addEventListener('click',function(){ select(i,true); });
     listEl.appendChild(item); s.el=item;
   }); }
   buildList();
-  (function(){
-    var defs=[['Techno','techno'],['Metal','metal'],['Rock','rock'],['Indie','indie'],['Trip-Hop','trip-hop'],['Jazz','jazz']];
-    var base='https://de1.api.radio-browser.info/json/stations/bytagexact/';
-    var acc=[],done=0;
-    defs.forEach(function(g){
-      fetch(base+encodeURIComponent(g[1])+'?limit=14&order=clickcount&reverse=true&hidebroken=true').then(function(r){return r.json();}).then(function(arr){
-        var k=0;(arr||[]).forEach(function(st){ var u=(st&&st.url_resolved)||''; if(k<4 && /^https:/i.test(u) && !/\.(m3u8|pls|m3u)(\?|$)/i.test(u)){ acc.push({name:(st.name||'').replace(/\s+/g,' ').trim().slice(0,42),genre:g[0],url:u}); k++; } });
-      }).catch(function(){}).then(function(){ done++; if(done===defs.length && acc.length>=6){ stations=acc; idx=0; buildList(); select(0,false); } });
-    });
-  })();
+  function refreshNow(){
+    fetch('https://somafm.com/channels.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+      var map={}; (j.channels||[]).forEach(function(ch){ map[ch.id]=fmtNow(ch.lastPlaying); });
+      stations.forEach(function(s){ if(map[s.id]) s.now=map[s.id]; if(s.el){ var g=s.el.querySelector('.rp-si-genre'); if(g) g.textContent=s.now||s.genre; } });
+      var cur=stations[idx]; if(cur&&cur.now&&!audio.paused){ elStatus.textContent=DOT+cur.now; }
+    }).catch(function(){});
+  }
+  refreshNow(); setInterval(refreshNow,25000);
   function setActive(){ stations.forEach(function(s,i){ s.el.classList.toggle('active',i===idx); }); }
   function clearPlaying(){ stations.forEach(function(s){ s.el.classList.remove('playing'); }); }
   function select(i,autoplay){
@@ -329,7 +328,7 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
   vol.addEventListener('input',function(){ audio.volume=vol.value/100; });
   audio.volume=vol.value/100;
   audio.addEventListener('playing',function(){
-    elStatus.textContent=DOT+'LIVE';
+    elStatus.textContent=DOT+((stations[idx]&&stations[idx].now)?stations[idx].now:'LIVE');
     playIcon.setAttribute('d',ICON_PAUSE);
     R.classList.add('playing');
     clearPlaying(); if(stations[idx].el) stations[idx].el.classList.add('playing');
