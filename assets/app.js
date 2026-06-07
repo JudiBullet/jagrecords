@@ -287,17 +287,24 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
     {name:'FIP Rock',genre:'Rock / Eclectic',url:'https://icecast.radiofrance.fr/fiprock-midfi.mp3'}
   ];
   var idx=0;
-  stations.forEach(function(s,i){
-    var item=document.createElement('div');
-    item.className='rp-station-item';
+  function buildList(){ listEl.innerHTML=''; stations.forEach(function(s,i){
+    var item=document.createElement('div'); item.className='rp-station-item';
     var num=(i+1<10?'0':'')+(i+1);
-    item.innerHTML='<div class="rp-si-idx">'+num+'</div>'+
-      '<div class="rp-si-body"><div class="rp-si-name">'+s.name+'</div><div class="rp-si-genre">'+s.genre+'</div></div>'+
-      '<div class="rp-si-bars"><span></span><span></span><span></span></div>';
+    item.innerHTML='<div class="rp-si-idx">'+num+'</div><div class="rp-si-body"><div class="rp-si-name">'+s.name+'</div><div class="rp-si-genre">'+s.genre+'</div></div><div class="rp-si-bars"><span></span><span></span><span></span></div>';
     item.addEventListener('click',function(){ select(i,true); });
-    listEl.appendChild(item);
-    s.el=item;
-  });
+    listEl.appendChild(item); s.el=item;
+  }); }
+  buildList();
+  (function(){
+    var defs=[['Techno','techno'],['Metal','metal'],['Rock','rock'],['Indie','indie'],['Trip-Hop','trip-hop'],['Jazz','jazz']];
+    var base='https://de1.api.radio-browser.info/json/stations/bytagexact/';
+    var acc=[],done=0;
+    defs.forEach(function(g){
+      fetch(base+encodeURIComponent(g[1])+'?limit=4&order=clickcount&reverse=true&hidebroken=true').then(function(r){return r.json();}).then(function(arr){
+        (arr||[]).forEach(function(st){ if(st&&st.url_resolved){ acc.push({name:(st.name||'').replace(/\s+/g,' ').trim().slice(0,42),genre:g[0],url:st.url_resolved}); } });
+      }).catch(function(){}).then(function(){ done++; if(done===defs.length && acc.length>=6){ stations=acc; idx=0; buildList(); select(0,false); } });
+    });
+  })();
   function setActive(){ stations.forEach(function(s,i){ s.el.classList.toggle('active',i===idx); }); }
   function clearPlaying(){ stations.forEach(function(s){ s.el.classList.remove('playing'); }); }
   function select(i,autoplay){
@@ -343,21 +350,24 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
 
 ;(function(){var c=document.getElementById('footerLogo');if(!c)return;var src=document.querySelector('.nav-logo .jag-logo-svg');if(src){var s=src.cloneNode(true);s.removeAttribute('width');s.removeAttribute('height');c.appendChild(s);}})();
 ;(function(){var f=document.getElementById('contactForm');if(!f)return;f.addEventListener('submit',function(e){e.preventDefault();function v(id){var el=document.getElementById(id);return el?el.value.trim():'';}var n=v('cfName'),em=v('cfEmail'),s=v('cfSubject')||'Mesaj',m=v('cfMsg');var nl=String.fromCharCode(10);var body='Ad: '+n+nl+'E-posta: '+em+nl+nl+m;location.href='mailto:info@jagrecords.com?subject='+encodeURIComponent('[JAG] '+s)+'&body='+encodeURIComponent(body);});})();
-/* ===== LIVE NEWS (Vercel api/news -> fallback CORS proxy) ===== */
+/* ===== LIVE NEWS (Vercel api/news -> fallback proxy; home grid + full page) ===== */
 (function(){
-  var grid=document.getElementById('newsGrid'); if(!grid) return;
-  var shown=false;
+  var grid=document.getElementById('newsGrid'); var full=document.getElementById('newsFull');
+  var target=full||grid; if(!target) return; var rich=!!full; var shown=false;
   function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+  function card(n){
+    var a=document.createElement('a');a.className='news-card'+(rich?' news-card-rich':'');a.href=n.link||'#';a.target='_blank';a.rel='noopener';
+    var dt=n.date?new Date(n.date):null;var d=(dt&&!isNaN(dt.getTime()))?dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
+    var html='';
+    if(rich&&n.image){ html+='<div class="news-thumb" style="background-image:url('+JSON.stringify(n.image)+')"></div>'; }
+    html+='<div class="news-body"><div class="news-src">'+esc(n.src)+(d?' &#183; '+d:'')+'</div><div class="news-title">'+esc(n.title)+'</div>';
+    if(rich&&n.excerpt){ html+='<div class="news-excerpt">'+esc(n.excerpt)+'</div>'; }
+    html+='</div>'; a.innerHTML=html; return a;
+  }
   function paint(items){
     if(shown) return; shown=true;
-    if(!items||!items.length){ grid.innerHTML='<div class="news-loading">Could not load news right now &#8212; please try again later.</div>'; return; }
-    grid.innerHTML='';
-    items.slice(0,9).forEach(function(n){
-      var a=document.createElement('a');a.className='news-card';a.href=n.link||'#';a.target='_blank';a.rel='noopener';
-      var dt=n.date?new Date(n.date):null;var d=(dt&&!isNaN(dt.getTime()))?dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
-      a.innerHTML='<div class="news-src">'+esc(n.src)+(d?' &#183; '+d:'')+'</div><div class="news-title">'+esc(n.title)+'</div>';
-      grid.appendChild(a);
-    });
+    if(!items||!items.length){ target.innerHTML='<div class="news-loading">Could not load news right now &#8212; please try again later.</div>'; return; }
+    target.innerHTML=''; items.slice(0,rich?18:9).forEach(function(n){ target.appendChild(card(n)); });
   }
   fetch('/api/news').then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(j){ paint(j.items); }).catch(function(){ fallback(); });
   function fallback(){
@@ -366,9 +376,24 @@ revs.forEach(el=>{inObs.observe(el);outObs.observe(el);});
     feeds.forEach(function(f){
       fetch(prox+encodeURIComponent(f[1])).then(function(r){return r.text();}).then(function(xml){
         var doc=new DOMParser().parseFromString(xml,'text/xml');var its=doc.querySelectorAll('item');
-        for(var i=0;i<its.length&&i<4;i++){var it=its[i];var t=(it.querySelector('title')||{}).textContent||'';if(t)items.push({title:t,link:(it.querySelector('link')||{}).textContent||'#',date:(it.querySelector('pubDate')||{}).textContent||'',src:f[0]});}
+        for(var i=0;i<its.length&&i<4;i++){var it=its[i];var t=(it.querySelector('title')||{}).textContent||'';if(t)items.push({title:t,link:(it.querySelector('link')||{}).textContent||'#',date:(it.querySelector('pubDate')||{}).textContent||'',src:f[0],excerpt:'',image:''});}
       }).catch(function(){}).then(function(){done++;if(done>=feeds.length){items.sort(function(a,b){return new Date(b.date)-new Date(a.date);});paint(items);}});
     });
     setTimeout(function(){ if(!shown) paint(items); },9000);
   }
+})();
+/* ===== EVENTS (data-driven via assets/events.json) ===== */
+(function(){
+  var el=document.getElementById('eventsList'); if(!el) return;
+  function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+  fetch('assets/events.json').then(function(r){return r.json();}).then(function(evs){
+    if(!evs||!evs.length){ el.innerHTML='<div class="news-loading">No upcoming events.</div>'; return; }
+    el.innerHTML='';
+    evs.forEach(function(e){
+      var p=(e.date||'').split(' '); var dm=((p[0]||'')+' '+(p[1]||'')).trim();
+      var row=document.createElement('div'); row.className='event-row';
+      row.innerHTML='<div class="event-date">'+esc(dm)+'</div><div class="event-main"><div class="event-artist" lang="en">'+esc(e.artist)+'</div><div class="event-venue">'+esc(e.venue)+' &#183; '+esc(e.city)+'</div></div><a href="'+esc(e.tickets||'#')+'" class="event-cta">Tickets</a>';
+      el.appendChild(row);
+    });
+  }).catch(function(){ el.innerHTML='<div class="news-loading">No upcoming events.</div>'; });
 })();
