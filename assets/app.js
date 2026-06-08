@@ -22,6 +22,7 @@
 ══════════════════════════════════════════════════════════════ */
 (function(){
   const cvs = document.getElementById('bg-canvas');
+  if(!cvs) return; /* hero-only: not present on inner pages */
   let gl = null;
   try{ gl = cvs.getContext('webgl',{antialias:false,alpha:false,depth:false}) || cvs.getContext('experimental-webgl'); }catch(e){}
   if(!gl){
@@ -97,15 +98,28 @@
   function resize(){const w=Math.max(2,Math.floor(innerWidth*SCALE)),h=Math.max(2,Math.floor(innerHeight*SCALE));cvs.width=w;cvs.height=h;gl.viewport(0,0,w,h);}
   resize();addEventListener('resize',resize);
   const start=performance.now();
+  let visible=true, queued=false;
   function frame(now){
+    queued=false;
+    if(!visible) return;
     S.x+=(M.x-S.x)*0.03;S.y+=(M.y-S.y)*0.03;
     gl.uniform2f(uR,cvs.width,cvs.height);
     gl.uniform1f(uT,(now-start)/1000.0);
     gl.uniform2f(uMO,S.x,1.0-S.y);gl.uniform1f(uDk,(window.__dark===false)?0.0:1.0);
     gl.drawArrays(gl.TRIANGLES,0,3);
-    requestAnimationFrame(frame);
+    queue();
   }
-  requestAnimationFrame(frame);
+  function queue(){ if(!queued){ queued=true; requestAnimationFrame(frame); } }
+  /* only render while the hero (and its blob) is actually on screen — saves CPU/GPU once scrolled past */
+  try{
+    new IntersectionObserver(es=>{
+      es.forEach(e=>{
+        visible=e.isIntersecting;
+        if(visible) queue();
+      });
+    },{threshold:0}).observe(cvs);
+  }catch(e){}
+  queue();
 })();
 
 /* ══════════════════════════════════════════════════════════════
